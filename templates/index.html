@@ -1,0 +1,23 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CatInt</title>
+    <link rel="stylesheet" type="text/css" href="static/styles.css" />
+</head>
+<body class="fakeScreen">
+    <h1>Hash Details / Upload</h1>
+    <form action="/submit" method="post">
+        <label for="hash">Hash:</label>
+        <input type="file" id="hash" name="hash">
+        <button type="submit" class="fakeButtons">UPLOAD HASH</button>
+    </form>
+    
+    <h1>Hashcat Output</h1>
+    <pre>hashcat version: {{ hashcat_output }}</pre>
+    <p>hashcat version: {{ hashcat_output }}</p>
+</body>
+</html>
