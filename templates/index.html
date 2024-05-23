@@ -8,15 +8,28 @@
     <title>CatInt</title>
     <link rel="stylesheet" type="text/css" href="static/styles.css" />
 </head>
-<body class="fakeScreen">
-    <h1>Hash Details / Upload</h1>
-    <form action="/submit" method="post">
-        <label for="hash">Hash:</label>
-        <input type="file" id="hash" name="hash">
-        <button type="submit" class="fakeButtons">UPLOAD HASH</button>
-    </form>
-    
+<body>
+    <div>
+        <h1>Hash Details / Upload</h1>
+        <form action="/submit" method="post">
+            <label for="hash">hash value:</label>
+            <input type="text" id="hash" name="hash">
+            <br>
+            <label for="hash_id">hash type:</label>
+            <select id="hash_id" name="hash_id">
+                <option value="MD5">MD5</option>
+                <option value="BASE64">BASE64</option>
+                <option value="ROT13">ROT13</option>
+                <option value="NTLMv2">NTLMv2</option>
+            </select>
+            <button type="submit" class="fakeButtons">CRACK HASH</button>
+        </form>
+    </div>
+    <br>
+    <div>
     <h1>Hashcat Output</h1>
-    <pre>hashcat version: " {{ hashcat_output }} " </pre>
+    <pre>hashcat version: {{ hashcat_output }}</pre>
+    <p>hashcat version: {{ hashcat_output }}</p>
+    </div>
 </body>
 </html>

@@ -8,9 +8,10 @@ app = Flask(__name__,template_folder='templates', static_folder='static')
 @app.route('/submit', methods=['POST'])
 def submit_form():
     hash_value = request.form['hash']
+    hash_type = request.form['hash_id']
     # Process the hash_value as needed
 
-    return "Received hash: " + hash_value
+    return "Received hash: " + hash_value + "<br>" + "Hash Type Set: " + hash_type
 
 # Route to serve the HTML page
 @app.route('/')
