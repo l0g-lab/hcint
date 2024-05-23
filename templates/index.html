@@ -18,25 +18,36 @@
     <div>
         <h1>Hash Details / Upload</h1>
         <form action="/submit" method="post">
-            <label for="hash">hash value:</label>
-            <input type="text" id="hash" name="hash">
+            <label for="hash_in">hash value:</label>
+            <input type="text" id="hash_in" name="hash_in">
             <br>
             <label for="hash_id">hash type:</label>
             <select id="hash_id" name="hash_id">
                 <option value="MD5">MD5</option>
-                <option value="BASE64">BASE64</option>
-                <option value="ROT13">ROT13</option>
-                <option value="NTLMv2">NTLMv2</option>
+                <option value="NTLMV1">NTLMv1</option>
+                <option value="NTLMV1NT">NTLMv1_NT</option>
+                <option value="NTLMV2">NTLMv2</option>
+                <option value="NTLMV2NT">NTLMv2_NT</option>
             </select>
-            <button type="submit" class="fakeButtons">CRACK HASH</button>
+            <button type="submit">CRACK HASH</button>
         </form>
     </div>
     <br>
     <div>
-    <h1>Hashcat Output</h1>
-    <pre>hashcat version: {{ hc_version }}</pre>
-    <pre>hashcat value: {{ hash_value }}</pre>
-    <pre>hashcat type: {{ hash_type }}</pre>
+        <h2>Hashcat Info</h2>
+        <pre><strong>hashcat version:</strong> {{ hc_version }}</pre>
+        {% if hash_value and hash_type %}
+            <pre><strong>Hash Value:</strong> {{ hash_value }}</pre>
+            <pre><strong>Hash Type:</strong> {{ hash_type }}</pre>
+        {% endif %}
     </div>
+
+    {% if hc_output %}
+        <br>
+        <div>
+            <h2>Hashcat Output:</h2>
+            <pre>{{ hc_output|safe }}</pre>
+        </div>
+    {% endif %}
 </body>
 </html>
