@@ -11,7 +11,7 @@ def submit_form():
     hash_type = request.form['hash_id']
     # Process the hash_value as needed
 
-    return "Received hash: " + hash_value + "<br>" + "Hash Type Set: " + hash_type
+    return render_template('/index.html', hash_value=hash_value, hash_type=hash_type)
 
 # Route to serve the HTML page
 @app.route('/')
