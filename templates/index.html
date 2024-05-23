@@ -5,10 +5,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CatInt</title>
+    <title>hcint</title>
     <link rel="stylesheet" type="text/css" href="static/styles.css" />
 </head>
 <body>
+    <header>
+        <img src="https://img.icons8.com/ios-filled/50/00FF00/cat.png" alt="Cat Icon" class="icon">
+        <h1 class="main-title">
+            hcInt
+        </h1>
+    </header>
     <div>
         <h1>Hash Details / Upload</h1>
         <form action="/submit" method="post">
@@ -29,8 +35,8 @@
     <div>
     <h1>Hashcat Output</h1>
     <pre>hashcat version: {{ hashcat_output }}</pre>
-    <p>hashcat value: {{ hash_value }}</p>
-    <p>hashcat type: {{ hash_type }}</p>
+    <pre>hashcat value: {{ hash_value }}</pre>
+    <pre>hashcat type: {{ hash_type }}</pre>
     </div>
 </body>
 </html>
