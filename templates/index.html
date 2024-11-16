@@ -1,5 +1,3 @@
-<!-- index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>hcint</title>
     <link rel="stylesheet" type="text/css" href="static/styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
     <header>
@@ -18,11 +17,11 @@
     <div>
         <h1>Hash Details / Upload</h1>
         <form action="/submit" method="post">
-            <label for="hash_in">hash value:</label>
-            <input type="text" id="hash_in" name="hash_in">
+            <label for="hash_value">hash value:</label>
+            <input type="text" id="hash_value" name="hash_value">
             <br>
-            <label for="hash_id">hash type:</label>
-            <select id="hash_id" name="hash_id">
+            <label for="hash_type">hash type:</label>
+            <select id="hash_type" name="hash_type">
                 <option value="MD5">MD5</option>
                 <option value="NTLMV1">NTLMv1</option>
                 <option value="NTLMV1NT">NTLMv1_NT</option>
@@ -41,13 +40,21 @@
             <pre><strong>Hash Type:</strong> {{ hash_type }}</pre>
         {% endif %}
     </div>
-
-    {% if hc_output %}
-        <br>
-        <div>
-            <h2>Hashcat Output:</h2>
-            <pre>{{ hc_output|safe }}</pre>
-        </div>
+    {% if route_hit %}
+	<br>
+	<div class="command" id="output" style="white-space: pre-wrap"></div>
+	<script>
+		var eventSource = new EventSource('/stream');
+		eventSource.onmessage = function(event) {
+			document.getElementById('output').innerHTML += event.data + "<br/>";
+			var outputDiv = document.getElementById('output');
+			outputDiv.scrollTop = outputDiv.scrollHeight;
+		};
+		eventSource.onerror = function(error) {
+			console.error('Error:', error);
+			eventSource.close();
+		};
+	</script>
     {% endif %}
 </body>
 </html>
