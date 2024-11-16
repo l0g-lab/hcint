@@ -10,10 +10,19 @@ NTLMV1NT_CODE=27000
 NTLMV2_CODE=5600
 NTLMV2NT_CODE=27100
 
-hc_version = subprocess.run(['hashcat', '--version'], capture_output=True, text=True).stdout
-
 app = Flask(__name__,template_folder='templates', static_folder='static')
 app.secret_key = b'thisisatest'
+
+def is_hashcat_installed(package_name):
+    try:
+        result = subprocess.run(['which', package_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if result.returncode == 0:
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(f"Error checking package: {e}")
+        return False
 
 def generate(hash_type: str, hash_value: str):
 
@@ -59,4 +68,8 @@ def index():
     return render_template('index.html', hc_version=hc_version)
 
 if __name__ == '__main__':
+    if not is_hashcat_installed('hashcat'):
+        print("hashcat is not installed or not in your PATH. Please fix and re-run.")
+        sys.exit(1)
+    hc_version = subprocess.run(['hashcat', '--version'], capture_output=True, text=True).stdout
     app.run(debug=True)
