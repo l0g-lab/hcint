@@ -5,7 +5,7 @@
 
 This project provides a web based frontend for hashcat. The idea is to allow you to use a more powerful computer to crack hashes while doing CTFs or similar. 
 
-The idea came about when I was tired of copying/pasting a hash for a CTF into a VM I have with GPU passthrough over an SSH session. With this, you can open hcint in another table and copy/paste directly into there and watch the output.
+The idea came about when I was tired of copying/pasting a hash for a CTF into a VM I have with GPU passthrough over an SSH session. With this, you can open hcint in another tab, copy/paste directly into the hcint site and watch the command output.
 
 hcInt can be hosted on a server with GPU passthrough or on your desktop PC.
 
@@ -15,6 +15,7 @@ hcInt can be hosted on a server with GPU passthrough or on your desktop PC.
 - add additional (most used or all) hash types
 - implement wordlist selection
 - change default runlevel to INFO and add DEBUG runlevel argument (-d)
+- hashcat error checking
 
 ### Requirements
 - hashcat installed on the computer running hcInt
