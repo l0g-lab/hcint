@@ -37,12 +37,12 @@
         <pre><strong>hashcat version:</strong> {{ hc_version }}</pre>
         {% if hash_value and hash_type %}
             <pre><strong>Hash Value:</strong> {{ hash_value }}</pre>
-            <pre><strong>Hash Type:</strong> {{ hash_type }}</pre>
+            <pre><strong>Hash Type Code:</strong> {{ hash_type }}</pre>
         {% endif %}
     </div>
     {% if route_hit %}
 	<br>
-	<div class="command" id="output" style="white-space: pre-wrap"></div>
+	<div id="output"></div>
 	<script>
 		var eventSource = new EventSource('/stream');
 		eventSource.onmessage = function(event) {
