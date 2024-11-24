@@ -17,9 +17,11 @@
     <div>
         <h1>Hash Details / Upload</h1>
         <form action="/submit" method="post">
-            <label for="hash_value">hash value:</label>
-            <input type="text" id="hash_value" name="hash_value">
-            <br>
+	    <label for="attack_mode">attack mode:</label>
+	    <select id="attack_mode" name="attack_mode">
+	        <option value="straight">Straight</option>
+	    </select>
+	    <br>
             <label for="hash_type">hash type:</label>
             <select id="hash_type" name="hash_type">
                 <option value="MD5">MD5</option>
@@ -28,6 +30,10 @@
                 <option value="NTLMV2">NTLMv2</option>
                 <option value="NTLMV2NT">NTLMv2_NT</option>
             </select>
+	    <br>
+            <label for="hash_value">hash value:</label>
+            <input type="text" id="hash_value" name="hash_value">
+	    <br>
             <button type="submit">CRACK HASH</button>
         </form>
     </div>

@@ -17,6 +17,11 @@ hash_types = {
         'NTLMV2NT' : 27100
 }
 
+# hashcat attack modes
+attack_modes = {
+        'straight': 0
+}
+
 def is_hashcat_installed(package_name):
     # check if hashcat is installed
     try:
@@ -29,10 +34,10 @@ def is_hashcat_installed(package_name):
         print(f"Error checking package: {e}")
         return False
 
-def generate(hash_type: str, hash_value: str):
+def generate(attack_mode: str, hash_type: str, hash_value: str):
 
     # run hashcat with user submitted values
-    proc = subprocess.Popen(['hashcat', '-m', hash_type, hash_value], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    proc = subprocess.Popen(['hashcat', '-a', attack_mode, '-m', hash_type, hash_value, '--status'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     hc_pid = proc.pid
 
     # iterate through each line of output from hashcat command
@@ -50,16 +55,25 @@ def submit_form():
     # set variable so new <div> is created in index.html template
     route_hit = True
 
+    # get hashcat attack mode
+    attack_mode = str(attack_modes.get(request.form['attack_mode']))
+
     # get hash information from HTML input form
     hash_type = str(hash_types.get(request.form['hash_type']))
     hash_value = request.form['hash_value']
 
     # set session variables so they can be used in other parts of the app
+    session['attack_mode'] = attack_mode
     session['hash_type'] = hash_type
     session['hash_value'] = hash_value
 
     # Process the hash_value as needed
-    return render_template('/index.html', hash_type=hash_type, hash_value=hash_value, hc_version=hc_version, route_hit=route_hit)
+    return render_template('/index.html',
+                           hash_type=hash_type,
+                           hash_value=hash_value,
+                           hc_version=hc_version,
+                           route_hit=route_hit
+                           )
 
 @app.route('/stream')
 def stream():
@@ -67,13 +81,14 @@ def stream():
     # get session variables from /submit route
     hash_type = session.get('hash_type')
     hash_value = session.get('hash_value')
+    attack_mode = session.get('attack_mode')
 
     if not hash_value or not hash_type:
         return redirect(url_for('index'))
 
     # return response from generate() function
     try:
-        return Response(generate(hash_type, hash_value), content_type='text/event-stream')
+        return Response(generate(attack_mode, hash_type, hash_value), content_type='text/event-stream')
     except GenerateError as e:
         print(f"Error: {e}")
 
