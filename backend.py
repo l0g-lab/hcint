@@ -61,11 +61,10 @@ def dl_wordlists(wordlist):
 
     return wl.status_code
 
-def generate(attack_mode: str, hash_type: str, hash_value: str):
+def generate(attack_mode: str, hash_type: str, hash_value: str, wordlist_used: str):
 
     # run hashcat with user submitted values
-    proc = subprocess.Popen(['hashcat', '-a', attack_mode, '-m', hash_type, hash_value, '--status'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    print(proc.args)
+    proc = subprocess.Popen(['hashcat', '-a', attack_mode, '-m', hash_type, hash_value, wordlist_used, '--status'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     hc_pid = proc.pid
 
     # iterate through each line of output from hashcat command
@@ -115,10 +114,15 @@ def submit_form():
     hash_type = str(hash_types.get(request.form['hash_type']))
     hash_value = request.form['hash_value']
 
+    # get wordlist selection from HTML input form
+    wordlist_url = str(wordlist_urls.get(request.form['wordlist_used']))
+    wordlist_used = next((key for key, value in wordlist_urls.items() if value == wordlist_url), None)
+
     # set session variables so they can be used in other parts of the app
     session['attack_mode'] = attack_mode
     session['hash_type'] = hash_type
     session['hash_value'] = hash_value
+    session['wordlist_used'] = wordlist_used
 
     # Process the hash_value as needed
     return render_template('/index.html',
@@ -137,13 +141,14 @@ def stream():
     hash_type = session.get('hash_type')
     hash_value = session.get('hash_value')
     attack_mode = session.get('attack_mode')
+    wordlist_used = session.get('wordlist_used')
 
     if not hash_value or not hash_type:
         return redirect(url_for('index'))
 
     # return response from generate() function
     try:
-        return Response(generate(attack_mode, hash_type, hash_value), content_type='text/event-stream')
+        return Response(generate(attack_mode, hash_type, hash_value, wordlist_used), content_type='text/event-stream')
     except GenerateError as e:
         print(f"Error: {e}")
 
