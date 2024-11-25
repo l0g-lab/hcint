@@ -165,4 +165,4 @@ if __name__ == '__main__':
     # set hashcat version
     hc_version = subprocess.run(['hashcat', '--version'], capture_output=True, text=True).stdout
 
-    app.run(debug=True)
+    app.run(host="0.0.0.0",debug=True)
