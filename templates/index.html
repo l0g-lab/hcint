@@ -36,10 +36,9 @@
 			<br>
 			<label for="wordlist_used">wordlist used:</label>
 			<select id="wordlist_used" name="wordlist_used">
-				<option value="rockyou25">rockyou-25</option>
-				<option value="rockyou50">rockyou-50</option>
-				<option value="rockyou75">rockyou-75</option>
-				<option value="rockyou">rockyou full</option>
+				{% for key in wordlist_urls %}
+					<option value="{{ key }}">{{ key }}</option>
+				{% endfor %}
 				<option value="url-input">enter URL</option>
 			</select>
 			<br>

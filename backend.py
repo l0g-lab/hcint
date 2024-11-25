@@ -27,9 +27,9 @@ attack_modes = {
 
 # wordlist URLs
 wordlist_urls = {
-    'rockyou25' : 'https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Passwords/Leaked-Databases/rockyou-25.txt',
-    'rockyou50' : 'https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Passwords/Leaked-Databases/rockyou-50.txt',
-    'rockyou75' : 'https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Passwords/Leaked-Databases/rockyou-75.txt'
+    'rockyou-25.txt' : 'https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Passwords/Leaked-Databases/rockyou-25.txt',
+    'rockyou-50.txt' : 'https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Passwords/Leaked-Databases/rockyou-50.txt',
+    'rockyou-75.txt' : 'https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Passwords/Leaked-Databases/rockyou-75.txt'
 }
 
 def is_hashcat_installed(package_name):
@@ -49,15 +49,17 @@ def dl_wordlists(wordlist):
     # open requests to wordlist URL
     wl = requests.get(wordlist)
 
-    # write to local file
+    # set filename
     wl_filename = os.path.basename(urlparse(wordlist).path)
 
     # write wordlist to file if not exist
     f = open(wl_filename, 'w')
     f.write(wl.text)
 
-    return wl.status_code
+    # add wordlist to wordlist_urls dict
+    wordlist_urls.update({wl_filename: wordlist})
 
+    return wl.status_code
 
 def generate(attack_mode: str, hash_type: str, hash_value: str):
 
@@ -93,7 +95,12 @@ def downloadwl():
     # download wordlist
     dl_status = dl_wordlists(wl)
 
-    return render_template('/index.html',hc_version=hc_version, wl_route_hit=wl_route_hit, dl_status=dl_status)
+    return render_template('/index.html',
+                            hc_version=hc_version,
+                            wl_route_hit=wl_route_hit,
+                            dl_status=dl_status,
+                            wordlist_urls=wordlist_urls
+                            )
 
 @app.route('/submit', methods=['POST'])
 def submit_form():
@@ -119,7 +126,8 @@ def submit_form():
                             hash_type=hash_type,
                             hash_value=hash_value,
                             hc_version=hc_version,
-                            route_hit=route_hit
+                            route_hit=route_hit,
+                            wordlist_urls=wordlist_urls
                             )
 
 @app.route('/stream')
@@ -142,7 +150,7 @@ def stream():
 @app.route('/')
 def index():
     # Generate base index page
-    return render_template('index.html', hc_version=hc_version)
+    return render_template('index.html', hc_version=hc_version, wordlist_urls=wordlist_urls)
 
 if __name__ == '__main__':
     if not is_hashcat_installed('hashcat'):
