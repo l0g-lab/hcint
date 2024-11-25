@@ -39,7 +39,7 @@ Once the above requirements are in place, do the following:
 8. Choose a wordlist from the dropdown, then click the "DOWNLOAD WORDLIST" button
 9. Choose the downloaded wordlist from the dropdown, enter your hash, then click "CRACK HASH"
 
-If the hash is succesfully cracked, you'll see a message in <span style="color:red">RED</span> stating "====== PASSWORD FOUND ======"
+If the hash is succesfully cracked, you'll see a message in $${\color{red}RED}$$ stating "====== PASSWORD FOUND ======"
 
 ## License
 
