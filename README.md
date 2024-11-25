@@ -11,7 +11,7 @@ hcInt can be hosted on a server with GPU passthrough or on your desktop PC.
 
 Thanks to:
 - [Lycan](https://github.com/1yc4n0rn0t) for input on the web interface
-- [TylerR1](https://github.com/trendingtrades) for suggested functionaliy upgrades
+- [TylerR1](https://github.com/trendingtrades) for suggested functionality upgrades
 
 #### Future enhancements:
 - add a timer
