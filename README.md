@@ -13,7 +13,8 @@ hcInt can be hosted on a server with GPU passthrough or on your desktop PC.
 - add a timer
 - add a stop button to halt the hashcat process
 - add additional (most used or all) hash types
-- implement wordlist selection
+- ~~implement wordlist selection~~
+- ~~implement wordlist downloader~~
 - change default runlevel to INFO and add DEBUG runlevel argument (-d)
 - hashcat error checking
 
