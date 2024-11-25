@@ -4,6 +4,9 @@ from flask import Flask, render_template, request, Response, session, redirect, 
 import subprocess
 import time
 import sys
+import requests
+import os.path
+from urllib.parse import urlparse
 
 app = Flask(__name__,template_folder='templates', static_folder='static')
 app.secret_key = b'thisisatest'
@@ -22,6 +25,13 @@ attack_modes = {
         'straight': 0
 }
 
+# wordlist URLs
+wordlist_urls = {
+    'rockyou25' : 'https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Passwords/Leaked-Databases/rockyou-25.txt',
+    'rockyou50' : 'https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Passwords/Leaked-Databases/rockyou-50.txt',
+    'rockyou75' : 'https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Passwords/Leaked-Databases/rockyou-75.txt'
+}
+
 def is_hashcat_installed(package_name):
     # check if hashcat is installed
     try:
@@ -34,10 +44,26 @@ def is_hashcat_installed(package_name):
         print(f"Error checking package: {e}")
         return False
 
+def dl_wordlists(wordlist):
+
+    # open requests to wordlist URL
+    wl = requests.get(wordlist)
+
+    # write to local file
+    wl_filename = os.path.basename(urlparse(wordlist).path)
+
+    # write wordlist to file if not exist
+    f = open(wl_filename, 'w')
+    f.write(wl.text)
+
+    return wl.status_code
+
+
 def generate(attack_mode: str, hash_type: str, hash_value: str):
 
     # run hashcat with user submitted values
     proc = subprocess.Popen(['hashcat', '-a', attack_mode, '-m', hash_type, hash_value, '--status'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    print(proc.args)
     hc_pid = proc.pid
 
     # iterate through each line of output from hashcat command
@@ -48,6 +74,26 @@ def generate(attack_mode: str, hash_type: str, hash_value: str):
     # kill process
     proc.stdout.close()
     proc.wait()
+
+@app.route('/downloadwl', methods=['POST'])
+def downloadwl():
+
+    # set variable for downloading wordlist
+    wl_route_hit = True
+
+    # get wordlist_used for conditional
+    what_word = request.form['wordlist_used']
+
+    # check if wordlist needed is from list or user supplied
+    if what_word != 'url-input':
+        wl = wordlist_urls.get(what_word)
+    else:
+        wl = request.form.get('wordlist_url')
+
+    # download wordlist
+    dl_status = dl_wordlists(wl)
+
+    return render_template('/index.html',hc_version=hc_version, wl_route_hit=wl_route_hit, dl_status=dl_status)
 
 @app.route('/submit', methods=['POST'])
 def submit_form():
@@ -69,11 +115,12 @@ def submit_form():
 
     # Process the hash_value as needed
     return render_template('/index.html',
-                           hash_type=hash_type,
-                           hash_value=hash_value,
-                           hc_version=hc_version,
-                           route_hit=route_hit
-                           )
+                            attack_mode=attack_mode,
+                            hash_type=hash_type,
+                            hash_value=hash_value,
+                            hc_version=hc_version,
+                            route_hit=route_hit
+                            )
 
 @app.route('/stream')
 def stream():
@@ -104,4 +151,5 @@ if __name__ == '__main__':
 
     # set hashcat version
     hc_version = subprocess.run(['hashcat', '--version'], capture_output=True, text=True).stdout
+
     app.run(debug=True)

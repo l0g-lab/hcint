@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>hcint</title>
-    <link rel="stylesheet" type="text/css" href="static/styles.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>hcint</title>
+	<link rel="stylesheet" type="text/css" href="static/styles.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
     <header>
@@ -17,36 +17,53 @@
     <div>
         <h1>Hash Details / Upload</h1>
         <form action="/submit" method="post">
-	    <label for="attack_mode">attack mode:</label>
-	    <select id="attack_mode" name="attack_mode">
-	        <option value="straight">Straight</option>
-	    </select>
-	    <br>
-            <label for="hash_type">hash type:</label>
-            <select id="hash_type" name="hash_type">
-                <option value="MD5">MD5</option>
-                <option value="NTLMV1">NTLMv1</option>
-                <option value="NTLMV1NT">NTLMv1_NT</option>
-                <option value="NTLMV2">NTLMv2</option>
-                <option value="NTLMV2NT">NTLMv2_NT</option>
-            </select>
-	    <br>
-            <label for="hash_value">hash value:</label>
-            <input type="text" id="hash_value" name="hash_value">
-	    <br>
-            <button type="submit">CRACK HASH</button>
-        </form>
-    </div>
-    <br>
-    <div>
-        <h2>Hashcat Info</h2>
-        <pre><strong>hashcat version:</strong> {{ hc_version }}</pre>
-        {% if hash_value and hash_type %}
-            <pre><strong>Hash Value:</strong> {{ hash_value }}</pre>
-            <pre><strong>Hash Type Code:</strong> {{ hash_type }}</pre>
-        {% endif %}
-    </div>
-    {% if route_hit %}
+	        <label for="attack_mode">attack mode:</label>
+			<select id="attack_mode" name="attack_mode">
+				<option value="straight">Straight (type: 0)</option>
+			</select>
+			<br>
+			<label for="hash_type">hash type:</label>
+			<select id="hash_type" name="hash_type">
+				<option value="MD5">MD5</option>
+				<option value="NTLMV1">NTLMv1</option>
+				<option value="NTLMV1NT">NTLMv1_NT</option>
+				<option value="NTLMV2">NTLMv2</option>
+				<option value="NTLMV2NT">NTLMv2_NT</option>
+			</select>
+			<br>
+			<label for="hash_value">hash value:</label>
+			<input type="text" id="hash_value" name="hash_value" placeholder="8743b52063cd84097a65d1633f5c74f5">
+			<br>
+			<label for="wordlist_used">wordlist used:</label>
+			<select id="wordlist_used" name="wordlist_used">
+				<option value="rockyou25">rockyou-25</option>
+				<option value="rockyou50">rockyou-50</option>
+				<option value="rockyou75">rockyou-75</option>
+				<option value="rockyou">rockyou full</option>
+				<option value="url-input">enter URL</option>
+			</select>
+			<br>
+			<label for="wordlist_url" style="display: none;">wordlist URL:</label>
+			<input type="text" id="wordlist_url" name="wordlist_url" placeholder="https://example.com/wordlist.txt">
+			<br>
+			<button type="submit" formaction="/downloadwl">DOWNLOAD WORDLISTS</button> <button type="submit">CRACK HASH</button>
+		</form>
+	</div>
+	<br>
+	<div>
+		<h2>Hashcat Info</h2>
+		<pre><strong>hashcat version:</strong> {{ hc_version }}</pre>
+		{% if  wl_route_hit %}
+			<pre><strong>Wordlist download status code:</strong> {{ dl_status }}</pre>
+		{% endif %}
+		{% if hash_value and hash_type %}
+			<pre><strong>Attack Mode:</strong> {{ attack_mode }}</pre>
+			<pre><strong>Hash Value:</strong> {{ hash_value }}</pre>
+			<pre><strong>Hash Type Code:</strong> {{ hash_type }}</pre>
+		{% endif %}
+	</div>
+
+	{% if route_hit %}
 	<br>
 	<div id="output"></div>
 	<script>
@@ -63,4 +80,26 @@
 	</script>
     {% endif %}
 </body>
+
+<script>
+    $(document).ready(function() {
+		// Check the dropdown selection on page load
+		toggleWordlistUrl();
+
+		// Listen for change events on the dropdown
+		$('#wordlist_used').change(function() {
+			toggleWordlistUrl();
+		});
+
+		// Function to show or hide the wordlist_url input based on the selected option
+		function toggleWordlistUrl() {
+			if ($('#wordlist_used').val() === 'url-input') {
+				$('#wordlist_url, label[for="wordlist_url"]').show();  // Show the wordlist_url input and label
+			} else {
+					$('#wordlist_url, label[for="wordlist_url"]').hide();  // Show the wordlist_url input and label
+			}
+		}
+});
+</script>
+
 </html>
