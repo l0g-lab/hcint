@@ -94,6 +94,11 @@ div {
   white-space: pre-wrap;
 }
 
+#found {
+  height: 15px;
+  color: red;
+}
+
 .terminal {
   margin: 20px;
   font-family: monospace;

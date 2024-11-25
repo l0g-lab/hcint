@@ -7,9 +7,14 @@ import sys
 import requests
 import os.path
 from urllib.parse import urlparse
+import argparse
+import logging
+import secrets
 
 app = Flask(__name__,template_folder='templates', static_folder='static')
-app.secret_key = b'thisisatest'
+app.secret_key = secrets.token_urlsafe(16)
+
+logger = logging.getLogger(__name__)
 
 # hashcat hash type codes
 hash_types = {
@@ -47,30 +52,64 @@ def is_hashcat_installed(package_name):
 def dl_wordlists(wordlist):
 
     # open requests to wordlist URL
-    wl = requests.get(wordlist)
+    try:
+        wl = requests.get(wordlist)
+    except Exception as e:
+        logger.error(f"Error wth URL provided: {e}")
+        return 'bad request!'
 
     # set filename
     wl_filename = os.path.basename(urlparse(wordlist).path)
 
     # write wordlist to file if not exist
-    f = open(wl_filename, 'w')
-    f.write(wl.text)
+    try:
+        with open(wl_filename, 'w') as f:
+            f.write(wl.text)
+    except (IOError, TypeError) as e:
+        logger.error(f"An error occurred while writing to the file: {e}")
+        return 'cannot write to file!'
 
     # add wordlist to wordlist_urls dict
     wordlist_urls.update({wl_filename: wordlist})
 
     return wl.status_code
 
+def password_found(hash_value, line):
+    if (hash_value + ":") in line:
+        return "data ====== PASSWORD FOUND ======\n\n"
+
 def generate(attack_mode: str, hash_type: str, hash_value: str, wordlist_used: str):
 
     # run hashcat with user submitted values
-    proc = subprocess.Popen(['hashcat', '-a', attack_mode, '-m', hash_type, hash_value, wordlist_used, '--status'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    hc_pid = proc.pid
+    proc = subprocess.Popen(['hashcat',
+                             '-a', attack_mode,
+                             '-m', hash_type,
+                             hash_value,
+                             wordlist_used,
+                             '--status'],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            text=True)
+    logger.debug(f"hashcat command: {proc.args}")
+    logger.debug(f"hashcat PID: {proc.pid}")
 
     # iterate through each line of output from hashcat command
     for line in iter(proc.stdout.readline,''):
+        if (hash_value + ":") in line.strip():
+            yield f"data: ====== PASSWORD FOUND ======\n\n"
+            print("Hash found")
         yield f"data: {line.strip()}\n\n"
         time.sleep(0.05)
+        if "All hashes found" in line:
+            proc = subprocess.Popen(['hashcat', '-m', hash_type, hash_value, '--show'], stdout=subprocess.PIPE, text=True)
+            for line in iter(proc.stdout.readline,''):
+                if (hash_value + ":") in line.strip():
+                    yield f"data: ====== PASSWORD FOUND ======\n\n"
+                    print("Hash found")
+                yield f"data: {line.strip()}\n\n"
+                time.sleep(0.05)
+            proc.stdout.close()
+            proc.wait()
 
     # kill process
     proc.stdout.close()
@@ -158,6 +197,10 @@ def index():
     return render_template('index.html', hc_version=hc_version, wordlist_urls=wordlist_urls)
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="HashCat Web Interface")
+    parser.add_argument("-d", "--debug", action="store_true", help="Enable debug logging")
+    args = parser.parse_args()
+
     if not is_hashcat_installed('hashcat'):
         print("hashcat is not installed or not in your PATH. Please fix and re-run.")
         sys.exit(1)
@@ -165,4 +208,12 @@ if __name__ == '__main__':
     # set hashcat version
     hc_version = subprocess.run(['hashcat', '--version'], capture_output=True, text=True).stdout
 
-    app.run(host="0.0.0.0",debug=True)
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+        logging.info("Starting hcint with log level: %s","DEBUG")
+        print(f"Flask App Secret Key: {app.secret_key}")
+        app.run(host="0.0.0.0",debug=True)
+    else:
+        logging.basicConfig(level=logging.INFO)
+        logging.info("Starting hcint with log level: %s","INFO")
+        app.run(host="0.0.0.0",debug=False)

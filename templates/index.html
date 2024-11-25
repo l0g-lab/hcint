@@ -64,11 +64,20 @@
 
 	{% if route_hit %}
 	<br>
+	<div id="found"></div>
+	<br>
 	<div id="output"></div>
 	<script>
 		var eventSource = new EventSource('/stream');
 		eventSource.onmessage = function(event) {
-			document.getElementById('output').innerHTML += event.data + "<br/>";
+			let messageData = event.data;
+			if (messageData.includes('====== PASSWORD FOUND ======')) {
+					var specialMessageDiv = document.createElement('div');
+					specialMessageDiv.innterHTML = messageData.replace('[FOUND]', '');
+					document.getElementById('found').innerHTML += messageData + "<br/>";
+			} else {
+					document.getElementById('output').innerHTML += event.data + "<br/>";
+			}
 			var outputDiv = document.getElementById('output');
 			outputDiv.scrollTop = outputDiv.scrollHeight;
 		};
